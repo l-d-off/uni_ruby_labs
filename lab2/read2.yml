@@ -1,0 +1,28 @@
+---
+- :name: Google
+  :phone: "+79997776655"
+  :duties:
+  - '1'
+  - '2'
+  :posts:
+  - :department: Google
+    :name: директор
+    :price: 1750
+    :vacant: false
+  - :department: Google
+    :name: сотрудник
+    :price: 10
+    :vacant: true
+- :name: Yandex
+  :phone: "+75553332211"
+  :duties:
+  - '3'
+  :posts:
+  - :department: Yandex
+    :name: директор
+    :price: 2750
+    :vacant: false
+  - :department: Yandex
+    :name: сотрудник
+    :price: 20
+    :vacant: false
