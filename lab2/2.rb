@@ -5,9 +5,9 @@ require 'yaml'
 class Department < Object
     attr_accessor :name
     attr_accessor :phone
-    attr_accessor :duties
+    # attr_accessor :duties
     attr_reader :index_duty
-    attr_accessor :posts
+    # attr_accessor :posts
     attr_reader :index_post
 
     def initialize name, phone, duties, posts
@@ -167,7 +167,7 @@ end
 
 # ----------------------------------- DEPARTMENT LIST -----------------------------------
 class Department_list
-    attr_accessor :deps
+    # attr_accessor :deps
     attr_reader :index_note
 
     def initialize deps
@@ -278,7 +278,7 @@ class Post # должность
     attr_accessor :name # название
     attr_accessor :salary # оклад
     attr_accessor :vacant # вакантна или нет
-    attr_accessor :jobs # рабочие места
+    # attr_accessor :jobs # рабочие места
 
     def initialize department, name, salary, vacant
         @department = department
@@ -339,7 +339,7 @@ end
 
 # ---------------------------------------- POST LIST ----------------------------------------
 class Post_list
-    attr_accessor :posts
+    # attr_accessor :posts
     attr_reader :index_note
 
     def initialize posts
