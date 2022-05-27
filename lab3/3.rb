@@ -846,3 +846,185 @@ class Premium_fine_rub_percent_sal < Fine_rub_percent_sal
         }
     end
 end
+
+# ----------------------------------- КЛАСС EMPLOYEE -----------------------------------
+class Employee
+    attr_accessor :fio
+    attr_accessor :birth_year
+    attr_accessor :passport
+    attr_accessor :phone
+    attr_accessor :address
+    attr_accessor :email
+
+    def initialize fio, birth_year, passport, phone, address, email
+        @fio = fio
+        @birth_year = birth_year
+        @passport = passport
+        @phone = phone
+        @address = address
+        @email = email
+    end
+
+    def to_hash
+        return {
+            :fio => @fio,
+            :birth_year => birth_year,
+            :passport => @passport,
+            :phone => @phone,
+            :address => @address,
+            :email => @email
+        }
+    end
+end
+
+class Skilled_employee < Employee
+    attr_accessor :experience
+    attr_accessor :description
+
+    def initialize fio, birth_year, passport, phone, address, email, experience, description
+        super fio, birth_year, passport, phone, address, email
+        @experience = experience
+        @description = description
+    end
+
+    def to_hash
+        return {
+            :fio => @fio,
+            :birth_year => birth_year,
+            :passport => @passport,
+            :phone => @phone,
+            :address => @address,
+            :email => @email,
+            :experience => @experience,
+            :description => @description
+        }
+    end
+end
+
+# ----------------------------------- КОЛЛЕКЦИИ ДАННЫХ -----------------------------------
+
+class Employee_list
+    # attr_accessor :employees
+    attr_reader :index_note
+
+    def initialize employees
+        @employees = employees
+    end
+
+    def to_s
+        s = "> Сотрудники\n"
+        @employees.each { |employee|
+            s += employees.to_s
+        }
+        return s
+    end
+
+    def sort
+        employees.sort! { |employee1, employee2| employee1.name <=> employee2.name }
+    end
+
+    def add_note note
+        if !(@employees.include? note)
+            @employees.push note
+        end
+    end
+
+    def delete_note
+        if @index_note >= 0 && @index_note < @employees.size
+            prev_index_note = @index_note
+            prev_note = @employees[@index_note]
+            @employees.delete_at @index_note
+            @index_note = -1
+            return "NOTE #{prev_note} ON #{prev_index_note} POSITION WAS DELETED"
+        else
+            return "NOTE IS NOT EXIST"
+        end
+    end
+
+    def choose_note index_note
+        if index_note >= 0 && index_note < @employees.size
+            @index_note = index_note
+            return "NOTE #{@employees[@index_note]} ON #{@index_note} POSITION WAS CHOSE"
+        else
+            return "NOTE IS NOT EXIST"
+        end
+    end
+
+    def get_note
+        if @index_note != -1
+            return @employees[@index_note]
+        end
+    end
+
+    def change_note note
+        prev_note = @employees[@index_note]
+        @employees[@index_note] = note
+        return "#{prev_note} WAS CHANGED TO #{note}"
+    end
+
+    # А ЧТО СЕРИАЛИЗУЕМ?
+    def serialize file = 'employee_list.yml'
+        File.open(file, 'w') do |file|
+            YAML.dump(to_hash, file)
+        end
+    end
+
+    # И ЧТО ДЕСЕРИАЛИЗУЕМ?
+    def self.deserialize file = File.read('employee_list.yml')
+        data = YAML.load file
+        employees = []
+        data.each { |field|
+            employees.push Employee.new field[:fio], field[:birthdate], field[:passport], field[:phone], field[:address], field[:email]
+        }
+        return self.new employees
+    end
+
+    def init_employees_name_has string
+        return Employee_list.new @employees.each.map { |employee|
+            if employee.fio[string] != nil
+                employee
+            end
+        }
+    end
+
+    def init_employees_people_whose_age_is age
+        return Employee_list.new @employees.each.map { |employee|
+            if Time.new.year - employee.birth_year == age
+                employee
+            end
+        }
+    end
+
+    def init_employees_people_whose_age_younger_than age
+        return Employee_list.new @employees.each.map { |employee|
+            if Time.new.year - employee.birth_year < age
+                employee
+            end
+        }
+    end
+
+    def init_employees_people_whose_age_older_than age
+        return Employee_list.new @employees.each.map { |employee|
+            if Time.new.year - employee.birth_year > age
+                employee
+            end
+        }
+    end
+
+    def init_employees_people_whose_age_is_in_the_range first_age, last_age
+        return Employee_list.new @employees.each.map { |employee|
+            if Time.new.year - employee.birth_year >= first_age &&
+                Time.new.year - employee.birth_year <= last_age
+                employee
+            end
+        }
+    end
+
+    def to_hash
+        hash_list = []
+        @employees.each { |employee|
+            hash_list.push employee.to_hash 
+        }
+        return hash_list
+    end
+end
