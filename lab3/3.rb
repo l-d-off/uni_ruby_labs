@@ -1028,3 +1028,175 @@ class Employee_list
         return hash_list
     end
 end
+
+# -------------------------------------- КЛАСС JOB --------------------------------------
+class Job
+    attr_accessor :post
+    attr_accessor :employee
+    attr_accessor :start_job_year
+    attr_accessor :end_job_year
+    attr_accessor :percent_salary
+
+    def initialize post, employee, start_job_year, end_job_year, percent_salary
+        @post = post
+        @employee = employee
+        @start_job_year = start_job_year
+        @end_job_year = end_job_year
+        @percent_salary = percent_salary
+    end
+end
+
+class Job_list
+    # attr_accessor :jobs
+    attr_reader :index_note
+
+    def initialize jobs
+        @jobs = jobs
+    end
+
+    def to_s
+        s = "> Рабочие места\n"
+        @jobs.each { |job|
+            s += jobs.to_s
+        }
+        return s
+    end
+
+    def sort
+        @jobs.sort! { |job1, job2| job1.name <=> job2.name }
+    end
+
+    def add_note note
+        if !(@jobs.include? note)
+            @jobs.push note
+        end
+    end
+
+    def delete_note
+        if @index_note >= 0 && @index_note < @jobs.size
+            prev_index_note = @index_note
+            prev_note = @jobs[@index_note]
+            @jobs.delete_at @index_note
+            @index_note = -1
+            return "NOTE #{prev_note} ON #{prev_index_note} POSITION WAS DELETED"
+        else
+            return "NOTE IS NOT EXIST"
+        end
+    end
+
+    def choose_note index_note
+        if index_note >= 0 && index_note < @jobs.size
+            @index_note = index_note
+            return "NOTE #{@jobs[@index_note]} ON #{@index_note} POSITION WAS CHOSE"
+        else
+            return "NOTE IS NOT EXIST"
+        end
+    end
+
+    def get_note
+        if @index_note != -1
+            return @jobs[@index_note]
+        end
+    end
+
+    def change_note note
+        prev_note = @jobs[@index_note]
+        @jobs[@index_note] = note
+        return "#{prev_note} WAS CHANGED TO #{note}"
+    end
+
+    # А ЧТО СЕРИАЛИЗУЕМ?
+    def serialize file = 'job_list.yml'
+        File.open(file, 'w') do |file|
+            YAML.dump(to_hash, file)
+        end
+    end
+
+    # И ЧТО ДЕСЕРИАЛИЗУЕМ?
+    def self.deserialize file = File.read('job_list.yml')
+        data = YAML.load file
+        jobs = []
+        data.each { |field|
+            jobs.push Job.new field[:post], field[:employee], field[:start_job_year], field[:end_job_year], field[:percent_salary]
+        }
+        return self.new jobs
+    end
+
+    def get_jobs_post_is post
+        return @jobs.each.map { |job|
+            if job.post == post
+                job
+            end
+        }
+    end
+
+    def get_jobs_employee_is employee
+        return @jobs.each.map { |job|
+            if job.employee == employee
+                job
+            end
+        }
+    end
+
+    def get_posts_employee_is
+        return @jobs
+    end
+
+    def to_hash
+        hash_list = []
+        @jobs.each { |job|
+            hash_list.push job.to_hash 
+        }
+        return hash_list
+    end
+end
+
+/
+Как можно сократить код?
+Его можно сократить в методах десериализации следующим образом:
+1. Достаём hash-объект из yml
+2. Вызываем Class.serialize (объект соответствующего типа помещается в соответствующий файл)
+3. Вызываем Class.deserialize от того же класса (таким образом мы получим объект из метода)
+/
+
+salary1 = Fix_sal.new 1750
+salary2 = Percent_sal.new 100, 10
+salary3 = Premium_fine_percent_sal.new 2750, 15, 150, 1000
+salary4 = Fine_rub_sal.new 20, 10, 5
+
+post1 = Post.new "Google", "директор", salary1, false
+post2 = Post.new "Google", "сотрудник", salary2, true
+post3 = Post.new "Yandex", "директор", salary3, false
+post4 = Post.new "Yandex", "сотрудник", salary4, false
+posts1 = Post_list.new [post1, post2]
+posts2 = Post_list.new [post3, post4]
+
+dep1 = Department.new "Google", "+79997776655", ["1", "2"], posts1
+dep2 = Department.new "Yandex", "+75553332211", ["3"], posts2
+deps = Department_list.new [dep1, dep2]
+
+puts "\nДАННЫЕ КЛАССА Department_list\n"
+deps.serialize
+gg = Department_list.deserialize
+puts gg
+
+puts "\nДАННЫЕ КЛАССА Post\n"
+post1.serialize
+puts Post.deserialize
+
+puts "\nДАННЫЕ КЛАССА Post_list\n"
+posts1.serialize
+puts Post_list.deserialize
+
+puts "\nДАННЫЕ КЛАССА Department\n"
+dep1.serialize
+puts Department.deserialize
+
+puts "\nДОЛЖНОСТИ ОТДЕЛА Google\n"
+puts posts1.init_posts_in "Google"
+
+puts "\nВАКАНТНЫЕ ДОЛЖНОСТИ ОТДЕЛА Google\n"
+puts posts1.init_vacant_posts_in "Google"
+
+puts "\nДОЛЖНОСТИ, В НАЗВАНИИ КОТОРЫХ СОДЕРЖИТСЯ ректор\n"
+puts posts1.init_posts_name_has "ректор"
